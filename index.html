@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FENER AĞLAMA ETKİLEŞİM</title>
+<style>
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+    background: black;
+}
+
+#bgVideo {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -2;
+}
+
+#aliKocBtn {
+    position: absolute; /* hareket edebilmesi için */
+    border: none;
+    background: none;
+    cursor: pointer;
+    text-align: center;
+    z-index: 2;
+}
+#aliKocBtn img {
+    width: 150px;
+    border-radius: 50%;
+}
+#aliKocBtn span {
+    display: block;
+    margin-top: 10px;
+    font-size: 1.2em;
+    color: white;
+    text-shadow: 1px 1px 3px black;
+}
+
+#followImg {
+    position: absolute;
+    width: 50px;
+    pointer-events: none;
+    z-index: 1;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% {transform: scale(1);}
+    50% {transform: scale(1.5);}
+    100% {transform: scale(1);}
+}
+
+.alev {
+    position: absolute;
+    width: 30px;
+    pointer-events: none;
+    z-index: 0;
+    animation: floatUp 1s linear forwards;
+}
+
+@keyframes floatUp {
+    0% {opacity: 1; transform: translateY(0);}
+    100% {opacity: 0; transform: translateY(-100px);}
+}
+</style>
+</head>
+<body>
+
+<!-- Arka Plan Video -->
+<video id="bgVideo" autoplay loop muted playsinline>
+    <source src="arkaplan.mp4" type="video/mp4">
+    Tarayıcınız video etiketini desteklemiyor.
+</video>
+
+<!-- Ali Koç Butonu -->
+<button id="aliKocBtn">
+    <img src="ali_koc.jpg" alt="Ali Koç">
+    <span>Ali Koç</span>
+</button>
+
+<!-- Ses -->
+<audio id="aliKocAudio" src="ses.mp3" autoplay loop></audio>
+
+<!-- Mouse Takip Resmi -->
+<img id="followImg" src="takip.jpg" alt="Takip eden resim">
+
+<script>
+const followImg = document.getElementById('followImg');
+const audio = document.getElementById('aliKocAudio');
+const aliBtn = document.getElementById('aliKocBtn');
+
+// Sayfa yüklendiğinde sesi otomatik başlat
+window.addEventListener('load', function() {
+    audio.play().catch(() => {
+        console.log("Autoplay engellendi, tıklayınca çalacak.");
+    });
+});
+
+// Ali Koç butonuna tıklayınca ses durur / devam eder
+aliBtn.addEventListener('click', function() {
+    if(audio.paused) audio.play();
+    else audio.pause();
+});
+
+// Fareyi takip et ve alev oluştur
+document.addEventListener('mousemove', function(e) {
+    followImg.style.left = (e.pageX - 25) + 'px';
+    followImg.style.top = (e.pageY - 25) + 'px';
+
+    const fire = document.createElement('img');
+    fire.src = 'alev.png';
+    fire.className = 'alev';
+    fire.style.left = (e.pageX - 15 + (Math.random()*30 -15)) + 'px';
+    fire.style.top = (e.pageY - 15 + (Math.random()*30 -15)) + 'px';
+    document.body.appendChild(fire);
+
+    setTimeout(() => fire.remove(), 1000);
+});
+
+// Ali Koç butonunun rastgele hızlı hareketi
+let aliX = 100;
+let aliY = 100;
+let aliDX = 6;  // X ekseni hızı
+let aliDY = 4;  // Y ekseni hızı
+
+function moveAli() {
+    const width = window.innerWidth - aliBtn.offsetWidth;
+    const height = window.innerHeight - aliBtn.offsetHeight;
+
+    aliX += aliDX;
+    aliY += aliDY;
+
+    // Kenarlara çarpınca yön değiştir
+    if(aliX < 0 || aliX > width) aliDX *= -1;
+    if(aliY < 0 || aliY > height) aliDY *= -1;
+
+    aliBtn.style.left = aliX + 'px';
+    aliBtn.style.top = aliY + 'px';
+
+    requestAnimationFrame(moveAli);
+}
+
+// Hareketi başlat
+moveAli();
+
+</script>
+
+</body>
+</html>
